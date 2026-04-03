@@ -20,3 +20,4 @@ The in-memory backend exists for one reason: tests should not require a running 
 - `warning` 60d — pool-specific red flags expire faster since pool conditions change
 - `outcome` 180d — execution outcomes are the most durable training signal
 - `context` 30d — ephemeral shared state, expires quickly
+
