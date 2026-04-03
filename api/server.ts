@@ -69,3 +69,4 @@ export function startServer(store: StoreBackend): void {
 
   log.info(`API running at http://localhost:${config.API_PORT}`);
 }
+
