@@ -9,3 +9,4 @@ export interface StoreBackend {
   pruneExpired(): Promise<number>;
   stats(): Promise<StoreStats>;
 }
+
