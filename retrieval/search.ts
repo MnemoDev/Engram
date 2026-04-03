@@ -29,3 +29,4 @@ export class SearchEngine {
     return this.query({ query, topK, minScore: 0 });
   }
 }
+
