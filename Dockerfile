@@ -15,3 +15,4 @@ RUN mkdir -p /app/logs && chown -R engram:engram /app/logs
 USER engram
 EXPOSE 4000
 CMD ["node", "dist/index.js"]
+
