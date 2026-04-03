@@ -12,3 +12,4 @@
 - REST API: POST /memories · POST /search · DELETE /memories/:id · POST /prune · GET /stats
 - Zod validation on all API inputs
 - 12 unit tests — all run without Chroma using the in-memory backend
+
