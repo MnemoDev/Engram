@@ -25,3 +25,4 @@ export function rerank(results: SearchResult[], opts: RankOptions): SearchResult
     })
     .sort((a, b) => b.score - a.score);
 }
+
