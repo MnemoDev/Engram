@@ -36,3 +36,4 @@ for (const r of memories) {
 // 3. Check store stats
 const stats = await fetch(`${BASE}/stats`);
 console.log("\nStats:", await stats.json());
+
