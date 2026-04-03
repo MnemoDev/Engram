@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  engram:
+    build: .
+    container_name: engram-api
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "4000:4000"
+    depends_on:
+      chromadb:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: engram-chroma
+    restart: unless-stopped
+    volumes:
+      - chroma-data:/chroma/chroma
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  chroma-data:

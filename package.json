@@ -1,0 +1,32 @@
+{
+  "name": "engram",
+  "version": "1.0.0",
+  "description": "RAG memory system for AI agents — semantic search, TTL pruning, deduplication, and a REST API over ChromaDB",
+  "type": "module",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "bun run --watch index.ts",
+    "build": "tsup",
+    "example": "bun run examples/basic.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "chromadb": "^1.9.0",
+    "zod": "^3.23.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0",
+    "tsup": "^8.3.0",
+    "vitest": "^2.1.0",
+    "bun-types": "latest"
+  },
+  "keywords": [
+    "rag", "memory", "vector-search", "chromadb", "ai-agent",
+    "semantic-search", "embeddings", "solana", "defi"
+  ],
+  "license": "MIT"
+}

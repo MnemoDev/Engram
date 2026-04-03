@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="520" viewBox="0 0 820 520">
+  <defs>
+    <style>text { font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; }</style>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#090c10"/>
+    </linearGradient>
+    <linearGradient id="bar1" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#58a6ff" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#58a6ff" stop-opacity="0.1"/>
+    </linearGradient>
+    <linearGradient id="bar2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#bc8cff" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#bc8cff" stop-opacity="0.1"/>
+    </linearGradient>
+    <linearGradient id="bar3" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#3fb950" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#3fb950" stop-opacity="0.1"/>
+    </linearGradient>
+    <linearGradient id="bar4" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#58a6ff" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#58a6ff" stop-opacity="0.05"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="1" y="1" width="818" height="518" rx="10" fill="none" stroke="#21262d" stroke-width="1.5"/>
+  <rect width="820" height="520" rx="10" fill="url(#bg)"/>
+
+  <!-- Header -->
+  <rect width="820" height="44" rx="10" fill="#111827"/>
+  <rect y="34" width="820" height="10" fill="#111827"/>
+  <circle cx="22" cy="22" r="7" fill="#ff5f57"/>
+  <circle cx="44" cy="22" r="7" fill="#febc2e"/>
+  <circle cx="66" cy="22" r="7" fill="#28c840"/>
+  <text x="410" y="27" text-anchor="middle" fill="#6b7280" font-size="12" letter-spacing="2">ENGRAM  ·  RAG MEMORY SYSTEM</text>
+
+  <!-- Stats bar -->
+  <rect x="16" y="56" width="788" height="30" rx="5" fill="#161b22"/>
+  <text x="28" y="76" fill="#58a6ff" font-size="11">⬡ 1,247 memories</text>
+  <text x="158" y="76" fill="#484f58" font-size="11">|</text>
+  <text x="171" y="76" fill="#8b949e" font-size="11">patterns: 412</text>
+  <text x="272" y="76" fill="#484f58" font-size="11">|</text>
+  <text x="285" y="76" fill="#8b949e" font-size="11">outcomes: 631</text>
+  <text x="392" y="76" fill="#484f58" font-size="11">|</text>
+  <text x="405" y="76" fill="#f0883e" font-size="11">warnings: 204</text>
+  <text x="510" y="76" fill="#484f58" font-size="11">|</text>
+  <text x="523" y="76" fill="#3fb950" font-size="11">● index healthy</text>
+  <text x="770" y="76" fill="#484f58" font-size="11" text-anchor="end">chroma v0.5</text>
+
+  <!-- Search section -->
+  <text x="28" y="108" fill="#484f58" font-size="10" letter-spacing="1">SEMANTIC SEARCH</text>
+  <rect x="16" y="114" width="788" height="32" rx="5" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <text x="28" y="135" fill="#484f58" font-size="12">›</text>
+  <text x="44" y="135" fill="#e6edf3" font-size="12">"SOL/USDC pool showed unusual volume spike before TVL drop — avoid rebalancing"</text>
+  <text x="760" y="135" fill="#484f58" font-size="11" text-anchor="end">top_k=4</text>
+
+  <!-- Results header -->
+  <line x1="16" y1="158" x2="804" y2="158" stroke="#21262d" stroke-width="1"/>
+  <text x="28" y="174" fill="#484f58" font-size="10" letter-spacing="1">RETRIEVED  ·  cosine similarity</text>
+  <text x="680" y="174" fill="#484f58" font-size="10" letter-spacing="1">SCORE</text>
+  <text x="750" y="174" fill="#484f58" font-size="10" letter-spacing="1">AGE</text>
+
+  <!-- Result 1 -->
+  <rect x="16" y="180" width="788" height="52" rx="5" fill="#161b22" stroke="#1f3a5c" stroke-width="1"/>
+  <rect x="16" y="180" width="3" height="52" rx="2" fill="#58a6ff"/>
+  <rect x="628" y="188" width="44" height="8" rx="2" fill="url(#bar1)"/>
+  <text x="628" y="225" fill="#58a6ff" font-size="10">████████▓</text>
+  <text x="680" y="200" fill="#58a6ff" font-size="13" font-weight="bold">0.94</text>
+  <text x="750" y="200" fill="#8b949e" font-size="11">3d ago</text>
+  <rect x="28" y="188" width="52" height="14" rx="3" fill="#1f3a5c"/>
+  <text x="54" y="199" fill="#58a6ff" font-size="10" text-anchor="middle">warning</text>
+  <text x="28" y="220" fill="#8b949e" font-size="11">Pool 7xKp...3mN: volume/TVL spiked 8.4x at 14:32 UTC. TVL dropped 31% within 2 hours. Wash trading suspected.</text>
+
+  <!-- Result 2 -->
+  <rect x="16" y="238" width="788" height="52" rx="5" fill="#161b22" stroke="#2d2638" stroke-width="1"/>
+  <rect x="16" y="238" width="3" height="52" rx="2" fill="#bc8cff"/>
+  <text x="680" y="258" fill="#bc8cff" font-size="13" font-weight="bold">0.87</text>
+  <text x="750" y="258" fill="#8b949e" font-size="11">11d ago</text>
+  <rect x="28" y="246" width="52" height="14" rx="3" fill="#2d2638"/>
+  <text x="54" y="257" fill="#bc8cff" font-size="10" text-anchor="middle">pattern</text>
+  <text x="28" y="278" fill="#8b949e" font-size="11">SOL/USDC on Meteora: 3 consecutive volume spikes > 5x TVL preceded EXIT signal in 87% of cases (n=23).</text>
+
+  <!-- Result 3 -->
+  <rect x="16" y="296" width="788" height="52" rx="5" fill="#161b22" stroke="#1a3a2a" stroke-width="1"/>
+  <rect x="16" y="296" width="3" height="52" rx="2" fill="#3fb950"/>
+  <text x="680" y="316" fill="#3fb950" font-size="13" font-weight="bold">0.81</text>
+  <text x="750" y="316" fill="#8b949e" font-size="11">27d ago</text>
+  <rect x="28" y="304" width="52" height="14" rx="3" fill="#1a3a2a"/>
+  <text x="54" y="315" fill="#3fb950" font-size="10" text-anchor="middle">outcome</text>
+  <text x="28" y="336" fill="#8b949e" font-size="11">EXIT executed on pool 7xKp...3mN after TVL drop signal. Avoided $840 IL. Decision confidence: 0.83.</text>
+
+  <!-- Result 4 -->
+  <rect x="16" y="354" width="788" height="52" rx="5" fill="#161b22"/>
+  <rect x="16" y="354" width="3" height="52" rx="2" fill="#484f58"/>
+  <text x="680" y="374" fill="#484f58" font-size="13">0.72</text>
+  <text x="750" y="374" fill="#484f58" font-size="11">63d ago</text>
+  <rect x="28" y="362" width="52" height="14" rx="3" fill="#1c2128"/>
+  <text x="54" y="373" fill="#6b7280" font-size="10" text-anchor="middle">warning</text>
+  <text x="28" y="394" fill="#6b7280" font-size="11">General: low-TVL pools (&lt; $20K) with &gt; $200K daily volume consistently show fee-rate anomalies. Skip.</text>
+
+  <!-- Pipeline indicator -->
+  <rect x="16" y="420" width="788" height="28" rx="5" fill="#111827"/>
+  <text x="28" y="439" fill="#484f58" font-size="10" letter-spacing="1">INGESTION PIPELINE</text>
+  <text x="155" y="439" fill="#484f58" font-size="11">|</text>
+  <text x="168" y="439" fill="#8b949e" font-size="11">chunk</text>
+  <text x="210" y="439" fill="#3fb950" font-size="11">→</text>
+  <text x="224" y="439" fill="#8b949e" font-size="11">embed</text>
+  <text x="272" y="439" fill="#3fb950" font-size="11">→</text>
+  <text x="286" y="439" fill="#8b949e" font-size="11">store</text>
+  <text x="330" y="439" fill="#3fb950" font-size="11">→</text>
+  <text x="344" y="439" fill="#8b949e" font-size="11">deduplicate</text>
+  <text x="432" y="439" fill="#3fb950" font-size="11">→</text>
+  <text x="446" y="439" fill="#8b949e" font-size="11">ttl-prune</text>
+  <text x="780" y="439" fill="#3fb950" font-size="11" text-anchor="end">● ready</text>
+
+  <!-- Footer -->
+  <rect x="0" y="460" width="820" height="30" rx="0" fill="#0a0e14"/>
+  <rect x="0" y="460" width="820" height="1" fill="#21262d"/>
+  <rect x="0" y="510" width="820" height="10" rx="10" fill="#0a0e14"/>
+  <text x="28" y="480" fill="#484f58" font-size="10">Voyage AI embeddings  ·  ChromaDB  ·  Bun 1.2  ·  HTTP API on :4000</text>
+  <text x="792" y="480" fill="#484f58" font-size="10" text-anchor="end">github.com/EngramLabs/engram</text>
+</svg>
