@@ -59,3 +59,4 @@ export const StoreStatsSchema = z.object({
 });
 
 export type StoreStats = z.infer<typeof StoreStatsSchema>;
+
