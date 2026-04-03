@@ -35,3 +35,4 @@ export function chunk(text: string, opts: Partial<ChunkOptions> = {}): Chunk[] {
   // Backfill totalChunks
   return chunks.map((c) => ({ ...c, totalChunks: chunks.length }));
 }
+
