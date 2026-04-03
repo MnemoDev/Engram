@@ -31,3 +31,4 @@ export function createLogger(ns: string) {
     error: (msg: string, data?: unknown) => emit("error", ns, msg, data),
   };
 }
+
