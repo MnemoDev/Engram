@@ -115,3 +115,4 @@ describe("rerank", () => {
     expect(reranked[0]!.memory.id).toBe("2");
   });
 });
+
