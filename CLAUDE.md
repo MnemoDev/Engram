@@ -53,3 +53,4 @@ registerHook("before:ingest", (req) => ({ ...req, content: req.content.toUpperCa
 ```
 
 Available events: `before:ingest`, `after:ingest`, `before:search`, `after:search`.
+
