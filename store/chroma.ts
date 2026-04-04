@@ -46,7 +46,10 @@ export class ChromaStore implements StoreBackend {
     const ttlDays = req.ttlDays ?? TTL_DAYS[req.category] ?? 90;
     const expiresAt = now + ttlDays * 24 * 60 * 60 * 1000;
 
-    // Near-duplicate check
+    // Near-duplicate check.
+    // Chroma returns cosine distance (0 = identical, 2 = maximally dissimilar).
+    // Threshold 0.92 similarity → distance < 0.08. If a near-duplicate exists,
+    // we update its expiresAt (refresh TTL) instead of inserting a second copy.
     const similar = await this.collection.query({
       queryTexts: [req.content],
       nResults: 1,
