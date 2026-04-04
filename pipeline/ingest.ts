@@ -36,11 +36,20 @@ export class IngestionPipeline {
     // Post-ingest hooks
     await applyHooks("after:ingest", memories);
 
-    log.debug("Ingested", {
-      chunks: memories.length,
-      category: req.category,
-      contentLength: req.content.length,
-    });
+    if (memories.length > 1) {
+      log.debug("Multi-chunk ingestion", {
+        chunks: memories.length,
+        category: req.category,
+        contentLength: req.content.length,
+        chunkSizes: memories.map((m) => m.content.length),
+      });
+    } else {
+      log.debug("Ingested", {
+        chunks: memories.length,
+        category: req.category,
+        contentLength: req.content.length,
+      });
+    }
 
     return memories;
   }
