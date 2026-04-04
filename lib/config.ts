@@ -6,7 +6,9 @@ const ConfigSchema = z.object({
   COLLECTION_NAME: z.string().default("engram"),
   API_PORT: z.coerce.number().default(4000),
   PRUNE_INTERVAL_HOURS: z.coerce.number().min(1).default(24),
+  PRUNE_ON_STARTUP: z.string().transform((v) => v === "true").default("false"),
   STORE_BACKEND: z.enum(["chroma", "memory"]).default("chroma"),
+  MIN_SCORE_THRESHOLD: z.coerce.number().min(0).max(1).default(0.0),
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
 });
 
