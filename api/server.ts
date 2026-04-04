@@ -22,6 +22,26 @@ export function startServer(store: StoreBackend): void {
         return Response.json({ status: "ok", ts: Date.now() });
       }
 
+      // ── Metrics ─────────────────────────────────────────────────────────────
+      // Prometheus-style text format for scraping by monitoring tools.
+      if (url.pathname === "/metrics" && method === "GET") {
+        const stats = await store.stats();
+        const lines = [
+          `# HELP engram_entries_total Total stored memory entries`,
+          `# TYPE engram_entries_total gauge`,
+          `engram_entries_total ${stats.total}`,
+          ...Object.entries(stats.byCategory).map(
+            ([cat, count]) => `engram_entries_by_category{category="${cat}"} ${count}`
+          ),
+          `# HELP engram_pruned_total Total expired entries pruned`,
+          `# TYPE engram_pruned_total counter`,
+          `engram_pruned_total ${stats.expiredPruned}`,
+        ];
+        return new Response(lines.join("\n"), {
+          headers: { "Content-Type": "text/plain; version=0.0.4" },
+        });
+      }
+
       // ── Stats ───────────────────────────────────────────────────────────────
       if (url.pathname === "/stats" && method === "GET") {
         const stats = await store.stats();
