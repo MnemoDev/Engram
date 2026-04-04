@@ -36,3 +36,15 @@ registerHook("before:ingest", (req: unknown) => {
   return req;
 });
 
+// Auto-tag: inject a system tag indicating the ingestion timestamp bucket.
+// Useful for querying memories by age band without computing from createdAt.
+registerHook("before:ingest", (req: unknown) => {
+  if (typeof req === "object" && req !== null && "tags" in req) {
+    const r = req as { tags?: string[] };
+    const hour = new Date().getUTCHours();
+    const band = hour < 6 ? "night" : hour < 12 ? "morning" : hour < 18 ? "afternoon" : "evening";
+    return { ...r, tags: [...(r.tags ?? []), `ingested:${band}`] };
+  }
+  return req;
+});
+
