@@ -117,6 +117,71 @@ Search results blend cosine similarity (85%) with a recency signal (15%). This p
 
 ---
 
+## Technical Spec
+
+### Vector Store — ChromaDB HNSW
+
+Engram uses ChromaDB's default HNSW index (`hnswlib`). Relevant parameters:
+
+| Parameter | Default | Effect |
+|-----------|---------|--------|
+| `M` | 16 | Graph connectivity — higher = better recall, more RAM |
+| `ef_construction` | 200 | Build-time search width — higher = better index quality, slower build |
+| `ef_search` | 100 | Query-time search width — raise for higher recall at cost of latency |
+
+For a store with < 50k entries, defaults are fine. Above 100k entries, raise `ef_search` to 150–200 to maintain recall.
+
+### Near-Duplicate Merge
+
+Chroma returns **cosine distance** (0 = identical, 2 = maximally dissimilar). The merge threshold is:
+
+```
+similarity = 1 − distance
+merge if distance < 1 − 0.92 = 0.08
+```
+
+When a near-duplicate is detected, Engram refreshes the existing entry's `expiresAt` rather than inserting a duplicate. This prevents the same recurring observation (e.g., pool warning seen 20× in a week) from bloating the collection with semantically identical entries.
+
+### Reranking Formula
+
+Results blend cosine similarity with a recency signal using **exponential decay** (half-life 30 days):
+
+```
+recencyScore = exp(−age / 30d_in_ms)
+blended = similarity × 0.85 + recencyScore × 0.15
+```
+
+A 90-day-old entry scores `exp(−3) ≈ 0.05` on recency. With linear decay it would score `0.33` — enough to displace a fresh warning with slightly lower similarity. Exponential decay prevents this.
+
+### TTL Enforcement
+
+TTL is applied at two points:
+1. **On search** — entries past `expiresAt` are filtered out before results are returned (no Chroma re-query needed)
+2. **On prune** — `POST /prune` (or scheduled `PRUNE_INTERVAL_HOURS`) does a full collection scan and deletes expired IDs in batch
+
+Prune is O(n) on collection size, so schedule it during low-traffic periods on large stores.
+
+### Chunking Strategy
+
+Input text is split at sentence boundaries (`.` followed by space) to preserve semantic coherence:
+- Max chunk size: 1000 chars (~250 tokens — well within the 512-token embedding model limit)
+- Overlap: 100 chars — ensures context at chunk boundaries doesn't vanish
+- Multi-chunk entries are prefixed `[1/3]`, `[2/3]`, etc. for debugging
+
+### /metrics Endpoint
+
+`GET /metrics` returns Prometheus-compatible text:
+```
+engram_entries_total 847
+engram_entries_by_category{category="pattern"} 312
+engram_entries_by_category{category="warning"} 241
+engram_entries_by_category{category="outcome"} 187
+engram_entries_by_category{category="context"} 107
+engram_pruned_total 94
+```
+
+---
+
 ## License
 
 MIT
