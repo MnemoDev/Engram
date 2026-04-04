@@ -38,7 +38,11 @@ export const SearchRequestSchema = z.object({
   topK: z.number().min(1).max(50).default(5),
   category: MemoryCategorySchema.optional(),
   agentId: z.string().optional(),
+  poolAddress: z.string().optional(),
+  tags: z.array(z.string()).optional(),
   minScore: z.number().min(0).max(1).default(0),
+  // If true, return full blended score breakdown (similarity + recency components)
+  debug: z.boolean().default(false),
 });
 
 export type SearchRequest = z.infer<typeof SearchRequestSchema>;
