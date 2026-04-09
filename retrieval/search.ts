@@ -1,4 +1,5 @@
 import { createLogger } from "../lib/logger.js";
+import { config } from "../lib/config.js";
 import type { StoreBackend } from "../store/base.js";
 import type { SearchRequest, SearchResult } from "../schemas/index.js";
 import { rerank } from "./ranker.js";
@@ -14,10 +15,13 @@ export class SearchEngine {
     const raw = await this.store.search(req.query, req.topK * 2, {
       ...(req.category ? { category: req.category } : {}),
       ...(req.agentId ? { agentId: req.agentId } : {}),
+      ...(req.poolAddress ? { poolAddress: req.poolAddress } : {}),
+      ...(req.tags?.length ? { tags: req.tags } : {}),
     });
 
     // Filter by minimum score
-    const filtered = raw.filter((r) => r.score >= req.minScore);
+    const minScore = req.minScore ?? config.MIN_SCORE_THRESHOLD;
+    const filtered = raw.filter((r) => r.score >= minScore);
 
     // Rerank: blend similarity score with recency
     const reranked = rerank(filtered, { recencyWeight: 0.15 });
@@ -26,7 +30,7 @@ export class SearchEngine {
   }
 
   async queryRaw(query: string, topK = 5): Promise<SearchResult[]> {
-    return this.query({ query, topK, minScore: 0 });
+    return this.query({ query, topK });
   }
 }
 

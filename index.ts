@@ -19,9 +19,10 @@ async function main() {
 
   await store.initialize();
 
-  // Prune expired entries on startup
-  const pruned = await store.pruneExpired();
-  if (pruned > 0) log.info("Pruned on startup", { count: pruned });
+  if (config.PRUNE_ON_STARTUP) {
+    const pruned = await store.pruneExpired();
+    if (pruned > 0) log.info("Pruned on startup", { count: pruned });
+  }
 
   // Start API server
   startServer(store);

@@ -2,7 +2,7 @@ import { ChromaClient, type Collection } from "chromadb";
 import { randomUUID } from "crypto";
 import { createLogger } from "../lib/logger.js";
 import { config } from "../lib/config.js";
-import type { StoreBackend } from "./base.js";
+import type { SearchFilters, StoreBackend } from "./base.js";
 import type { Memory, SearchResult, StoreStats, UpsertRequest } from "../schemas/index.js";
 
 const log = createLogger("ChromaStore");
@@ -60,12 +60,34 @@ export class ChromaStore implements StoreBackend {
     if (topDist !== undefined && topDist < 1 - SIMILARITY_MERGE_THRESHOLD) {
       const existingId = String(similar.ids[0]?.[0] ?? "");
       log.debug("Merging near-duplicate", { existingId, distance: topDist });
+      const existing = await this.get(existingId);
+      if (!existing) {
+        throw new Error(`Existing memory ${existingId} disappeared during merge`);
+      }
+
+      const mergedMeta: Record<string, string | number | boolean> = {
+        category: existing.category,
+        createdAt: existing.createdAt,
+        expiresAt,
+        ...(req.agentId ?? existing.agentId ? { agentId: req.agentId ?? existing.agentId ?? "" } : {}),
+        ...(req.poolAddress ?? existing.poolAddress ? { poolAddress: req.poolAddress ?? existing.poolAddress ?? "" } : {}),
+        ...(existing.tags.length || req.tags?.length
+          ? { tags: [...new Set([...existing.tags, ...(req.tags ?? [])])].join(",") }
+          : {}),
+        ...((req.outcome ?? existing.outcome) ? { outcome: req.outcome ?? existing.outcome ?? "" } : {}),
+        ...((req.pnlUsd !== undefined || existing.pnlUsd !== undefined)
+          ? { pnlUsd: req.pnlUsd ?? existing.pnlUsd ?? 0 }
+          : {}),
+        ...((req.confidence !== undefined || existing.confidence !== undefined)
+          ? { confidence: req.confidence ?? existing.confidence ?? 0 }
+          : {}),
+        mergedAt: now,
+      };
       await this.collection.update({
         ids: [existingId],
-        metadatas: [{ expiresAt, mergedAt: now }],
+        metadatas: [mergedMeta],
       });
-      const existing = await this.get(existingId);
-      if (existing) return existing;
+      return this.metaToMemory(existingId, existing.content, mergedMeta);
     }
 
     const id = randomUUID();
@@ -90,13 +112,14 @@ export class ChromaStore implements StoreBackend {
   async search(
     query: string,
     topK: number,
-    filters?: Partial<Pick<Memory, "category" | "agentId">>
+    filters?: SearchFilters
   ): Promise<SearchResult[]> {
     if (!this.collection) throw new Error("Store not initialized");
 
     const where: Record<string, unknown> = {};
     if (filters?.category) where["category"] = filters.category;
     if (filters?.agentId) where["agentId"] = filters.agentId;
+    if (filters?.poolAddress) where["poolAddress"] = filters.poolAddress;
 
     const results = await this.collection.query({
       queryTexts: [query],
@@ -117,6 +140,10 @@ export class ChromaStore implements StoreBackend {
 
       const score = 1 - Number(distances[i] ?? 1);
       const memory = this.metaToMemory(String(ids[i]), String(docs[i] ?? ""), meta);
+      if (filters?.tags?.length) {
+        const memoryTags = new Set(memory.tags);
+        if (!filters.tags.every((tag) => memoryTags.has(tag))) continue;
+      }
       searchResults.push({ memory, score });
       if (searchResults.length === topK) break;
     }

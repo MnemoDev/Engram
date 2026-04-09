@@ -3,7 +3,7 @@
  * Ideal for testing and local development without Chroma running.
  */
 import { randomUUID } from "crypto";
-import type { StoreBackend } from "./base.js";
+import type { SearchFilters, StoreBackend } from "./base.js";
 import type { Memory, SearchResult, StoreStats, UpsertRequest } from "../schemas/index.js";
 
 const TTL_DAYS: Record<string, number> = {
@@ -21,6 +21,27 @@ export class MemoryStore implements StoreBackend {
   async upsert(req: UpsertRequest): Promise<Memory> {
     const now = Date.now();
     const ttlDays = req.ttlDays ?? TTL_DAYS[req.category] ?? 90;
+    const duplicate = [...this.entries.values()].find(
+      (entry) =>
+        entry.category === req.category &&
+        entry.content === req.content &&
+        entry.poolAddress === req.poolAddress
+    );
+
+    if (duplicate) {
+      const merged: Memory = {
+        ...duplicate,
+        agentId: req.agentId ?? duplicate.agentId,
+        poolAddress: req.poolAddress ?? duplicate.poolAddress,
+        tags: [...new Set([...(duplicate.tags ?? []), ...(req.tags ?? [])])],
+        outcome: req.outcome ?? duplicate.outcome,
+        pnlUsd: req.pnlUsd ?? duplicate.pnlUsd,
+        confidence: req.confidence ?? duplicate.confidence,
+        expiresAt: now + ttlDays * 24 * 60 * 60 * 1000,
+      };
+      this.entries.set(duplicate.id, merged);
+      return merged;
+    }
 
     const memory: Memory = {
       id: randomUUID(),
@@ -40,7 +61,7 @@ export class MemoryStore implements StoreBackend {
     return memory;
   }
 
-  async search(query: string, topK: number, filters?: Partial<Pick<Memory, "category" | "agentId">>): Promise<SearchResult[]> {
+  async search(query: string, topK: number, filters?: SearchFilters): Promise<SearchResult[]> {
     const now = Date.now();
     const queryTerms = query.toLowerCase().split(/\s+/);
 
@@ -50,6 +71,11 @@ export class MemoryStore implements StoreBackend {
       if (memory.expiresAt < now) continue;
       if (filters?.category && memory.category !== filters.category) continue;
       if (filters?.agentId && memory.agentId !== filters.agentId) continue;
+      if (filters?.poolAddress && memory.poolAddress !== filters.poolAddress) continue;
+      if (filters?.tags?.length) {
+        const memoryTags = new Set(memory.tags ?? []);
+        if (!filters.tags.every((tag) => memoryTags.has(tag))) continue;
+      }
 
       // Simple TF-based score (no real embeddings — for dev/test only)
       const text = memory.content.toLowerCase();

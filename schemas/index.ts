@@ -40,7 +40,7 @@ export const SearchRequestSchema = z.object({
   agentId: z.string().optional(),
   poolAddress: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  minScore: z.number().min(0).max(1).default(0),
+  minScore: z.number().min(0).max(1).optional(),
   // If true, return full blended score breakdown (similarity + recency components)
   debug: z.boolean().default(false),
 });
