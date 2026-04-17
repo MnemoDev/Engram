@@ -21,26 +21,94 @@ async function main() {
 
   if (config.PRUNE_ON_STARTUP) {
     const pruned = await store.pruneExpired();
-    if (pruned > 0) log.info("Pruned on startup", { count: pruned });
+    if (pruned > 0) {
+      log.info("Pruned on startup", { count: pruned });
+    }
   }
 
-  // Start API server
-  startServer(store);
+  const server = startServer(store);
+  const stopPruneLoop = startPruneLoop(store);
+  const cleanupSignalHandlers = registerShutdownHandlers(() => {
+    log.warn("Shutdown requested. Stopping API server and prune loop.");
+    stopPruneLoop();
+    server.stop();
+  });
 
-  // Scheduled pruning
-  setInterval(
-    async () => {
-      const count = await store.pruneExpired();
-      if (count > 0) log.info("Scheduled prune", { count });
-    },
-    config.PRUNE_INTERVAL_HOURS * 60 * 60 * 1000
+  log.info(
+    `Ready - POST http://localhost:${config.API_PORT}/memories to store, POST /search to retrieve`
   );
 
-  log.info(`Ready — POST http://localhost:${config.API_PORT}/memories to store, POST /search to retrieve`);
+  return () => {
+    cleanupSignalHandlers();
+    stopPruneLoop();
+    server.stop();
+  };
+}
+
+function startPruneLoop(store: StoreBackend): () => void {
+  const intervalMs = config.PRUNE_INTERVAL_HOURS * 60 * 60 * 1000;
+  let stopped = false;
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  let pruneInFlight = false;
+
+  const scheduleNext = () => {
+    if (stopped) {
+      return;
+    }
+
+    timer = setTimeout(async () => {
+      if (pruneInFlight) {
+        log.warn("Skipping scheduled prune because a previous prune is still running");
+        scheduleNext();
+        return;
+      }
+
+      pruneInFlight = true;
+      const startedAt = Date.now();
+
+      try {
+        const count = await store.pruneExpired();
+        if (count > 0) {
+          log.info("Scheduled prune", { count, durationMs: Date.now() - startedAt });
+        }
+      } catch (err) {
+        log.error("Scheduled prune failed", {
+          error: err instanceof Error ? err.message : String(err),
+        });
+      } finally {
+        pruneInFlight = false;
+        scheduleNext();
+      }
+    }, intervalMs);
+  };
+
+  scheduleNext();
+
+  return () => {
+    stopped = true;
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+  };
+}
+
+function registerShutdownHandlers(onShutdown: () => void): () => void {
+  const handleSignal = (signal: NodeJS.Signals) => {
+    log.warn("Shutdown signal received", { signal });
+    onShutdown();
+  };
+
+  process.once("SIGINT", handleSignal);
+  process.once("SIGTERM", handleSignal);
+
+  return () => {
+    process.off("SIGINT", handleSignal);
+    process.off("SIGTERM", handleSignal);
+  };
 }
 
 main().catch((err) => {
   console.error("Fatal:", err);
   process.exit(1);
 });
-

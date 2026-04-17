@@ -7,7 +7,7 @@ import { SearchRequestSchema, UpsertRequestSchema } from "../schemas/index.js";
 
 const log = createLogger("API");
 
-export function startServer(store: StoreBackend): void {
+export function startServer(store: StoreBackend): ReturnType<typeof Bun.serve> {
   const search = new SearchEngine(store);
   const pipeline = new IngestionPipeline(store);
 
@@ -17,24 +17,21 @@ export function startServer(store: StoreBackend): void {
       const url = new URL(req.url);
       const method = req.method;
 
-      // ── Health ──────────────────────────────────────────────────────────────
       if (url.pathname === "/health" && method === "GET") {
         return Response.json({ status: "ok", ts: Date.now() });
       }
 
-      // ── Metrics ─────────────────────────────────────────────────────────────
-      // Prometheus-style text format for scraping by monitoring tools.
       if (url.pathname === "/metrics" && method === "GET") {
         const stats = await store.stats();
         const lines = [
-          `# HELP engram_entries_total Total stored memory entries`,
-          `# TYPE engram_entries_total gauge`,
+          "# HELP engram_entries_total Total stored memory entries",
+          "# TYPE engram_entries_total gauge",
           `engram_entries_total ${stats.total}`,
           ...Object.entries(stats.byCategory).map(
-            ([cat, count]) => `engram_entries_by_category{category="${cat}"} ${count}`
+            ([category, count]) => `engram_entries_by_category{category="${category}"} ${count}`
           ),
-          `# HELP engram_pruned_total Total expired entries pruned`,
-          `# TYPE engram_pruned_total counter`,
+          "# HELP engram_pruned_total Total expired entries pruned",
+          "# TYPE engram_pruned_total counter",
           `engram_pruned_total ${stats.expiredPruned}`,
         ];
         return new Response(lines.join("\n"), {
@@ -42,45 +39,40 @@ export function startServer(store: StoreBackend): void {
         });
       }
 
-      // ── Stats ───────────────────────────────────────────────────────────────
       if (url.pathname === "/stats" && method === "GET") {
-        const stats = await store.stats();
-        return Response.json(stats);
+        return Response.json(await store.stats());
       }
 
-      // ── Search ──────────────────────────────────────────────────────────────
       if (url.pathname === "/search" && method === "POST") {
         const body = await req.json();
         const parsed = SearchRequestSchema.safeParse(body);
         if (!parsed.success) {
           return Response.json({ error: parsed.error.flatten() }, { status: 400 });
         }
+
         const results = await search.query(parsed.data);
         return Response.json({ results, count: results.length });
       }
 
-      // ── Store ───────────────────────────────────────────────────────────────
       if (url.pathname === "/memories" && method === "POST") {
         const body = await req.json();
         const parsed = UpsertRequestSchema.safeParse(body);
         if (!parsed.success) {
           return Response.json({ error: parsed.error.flatten() }, { status: 400 });
         }
+
         const memories = await pipeline.ingest(parsed.data);
         return Response.json({ memories, count: memories.length }, { status: 201 });
       }
 
-      // ── Delete ──────────────────────────────────────────────────────────────
       if (url.pathname.startsWith("/memories/") && method === "DELETE") {
         const id = url.pathname.replace("/memories/", "");
         await store.delete(id);
         return new Response(null, { status: 204 });
       }
 
-      // ── Prune ───────────────────────────────────────────────────────────────
       if (url.pathname === "/prune" && method === "POST") {
-        const pruned = await store.pruneExpired();
-        return Response.json({ pruned });
+        return Response.json({ pruned: await store.pruneExpired() });
       }
 
       return Response.json({ error: "Not found" }, { status: 404 });
@@ -88,5 +80,5 @@ export function startServer(store: StoreBackend): void {
   });
 
   log.info(`API running at http://localhost:${config.API_PORT}`);
+  return server;
 }
-
