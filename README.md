@@ -6,11 +6,17 @@
 
 A RAG memory system for AI agents. Store observations, retrieve relevant context by semantic similarity, and let your agents learn from what they've seen before.
 
-<br/>
+## Persistent Memory Board
 
-![Engram semantic search interface](assets/preview.svg)
+<img src="assets/preview-dashboard.png" alt="Engram persistent memory board" width="100%" />
 
-<br/>
+Live memory board for Engram: agent observations, risk warnings, outcome memories, retrieval health, and decay windows visible as a persistent context layer for autonomous agents.
+
+## Memory Loop
+
+<img src="assets/preview-loop.png" alt="Engram memory loop" width="100%" />
+
+How Engram turns raw observations into reusable agent memory: store events, merge near-duplicates, prune expired entries, and retrieve the most relevant context before the next decision.
 
 ---
 
