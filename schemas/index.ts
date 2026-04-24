@@ -45,7 +45,7 @@ export const SearchRequestSchema = z.object({
   debug: z.boolean().default(false),
 });
 
-export type SearchRequest = z.infer<typeof SearchRequestSchema>;
+export type SearchRequest = z.input<typeof SearchRequestSchema>;
 
 export const SearchResultSchema = z.object({
   memory: MemorySchema,

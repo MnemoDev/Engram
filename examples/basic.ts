@@ -37,3 +37,4 @@ for (const r of memories) {
 const stats = await fetch(`${BASE}/stats`);
 console.log("\nStats:", await stats.json());
 
+export {};

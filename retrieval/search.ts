@@ -10,9 +10,10 @@ export class SearchEngine {
   constructor(private store: StoreBackend) {}
 
   async query(req: SearchRequest): Promise<SearchResult[]> {
-    log.debug("Searching", { query: req.query.slice(0, 60), topK: req.topK });
+    const topK = req.topK ?? 5;
+    log.debug("Searching", { query: req.query.slice(0, 60), topK });
 
-    const raw = await this.store.search(req.query, req.topK * 2, {
+    const raw = await this.store.search(req.query, topK * 2, {
       ...(req.category ? { category: req.category } : {}),
       ...(req.agentId ? { agentId: req.agentId } : {}),
       ...(req.poolAddress ? { poolAddress: req.poolAddress } : {}),
@@ -26,7 +27,7 @@ export class SearchEngine {
     // Rerank: blend similarity score with recency
     const reranked = rerank(filtered, { recencyWeight: 0.15 });
 
-    return reranked.slice(0, req.topK);
+    return reranked.slice(0, topK);
   }
 
   async queryRaw(query: string, topK = 5): Promise<SearchResult[]> {

@@ -10,7 +10,8 @@
     "noUncheckedIndexedAccess": true,
     "skipLibCheck": true,
     "declaration": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "types": ["node", "bun-types"]
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules", "dist"]
